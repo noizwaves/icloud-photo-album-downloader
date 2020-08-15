@@ -1,20 +1,24 @@
 from pyicloud import PyiCloudService
+from tzlocal import get_localzone
 import json
 import os
 import sys
 
 SMART_FOLDERS = ['All Photos', 'Time-lapse', 'Videos', 'Slo-mo', 'Bursts', 'Favorites', 'Panoramas', 'Screenshots', 'Live', 'Recently Deleted', 'Hidden']
 
-api = PyiCloudService('apple@noizwaves.com')
+print(f'Downloading albums for {sys.argv[1]}')
+api = PyiCloudService(sys.argv[1])
 
 def photo_to_path(photo):
     date = photo.asset_date.astimezone(get_localzone())
-    path = f'{str(date.year)}/{str(date.month).zfill(2)}/{str(date.day).zfill(2)}/{photo.filename.upper()}'
+    path = f'{str(date.year)}/{str(date.month).zfill(2)}/{str(date.day).zfill(2)}/{photo.filename}'
     return path
 
 for name, album in api.photos.albums.items():
     if name in SMART_FOLDERS:
         continue
+
+    print(f'Downloading "{name}"')
 
     name = album.title
     photos = list(map(photo_to_path, album.photos))
